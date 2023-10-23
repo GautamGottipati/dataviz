@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tableau Visualization</title>
+  <script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+  
+</head>
+<body>
+  <div><p>Hello world</p></div>
+  <div id="tableauViz"></div>
+  <div id="tableauViz1"></div>
+  <div id="dataContainer"></div>
+
+  <script>
+
+    let vizList = [];
+    let metricList = [];
+
+    // var viz, sheet;
+
+    
+
+    //start of function makeID
+    //take a filterName and make it appropriate for use as a DOM id
+    function makeId(tabName) {
+        return tabName.replace(/\s+/g, '-').toLowerCase();
+    }
+
+    var viz, sheet, table, workbook, activeSheet, tableheaders, tableheaders, skipcols;
+        
+        function initViz() {
+            
+
+            var containerDiv = document.getElementById("tableauViz"),
+                url = "https://public.tableau.com/views/HistoricalEnrollment-Sandbox/LineGraph",
+                options = {
+                    hideTabs: true,
+                    hideToolbar: true,
+                    onFirstInteractive: function() {
+                        console.log("Worksheet initialized. ");
+                        workbook = viz.getWorkbook();
+                        console.log("workbook = ",workbook);
+                        const sheetCount = workbook.getPublishedSheetsInfo();
+                        console.log("sheetCount = ", sheetCount);
+                        activeSheet = workbook.getActiveSheet();
+                        console.log("Active sheet = ", activeSheet);
+                        // resetButton.click();
+                        buildDataTable();
+
+                    }
+                };
+            viz = new tableau.Viz(containerDiv, url, options);
+
+            tableContainer = document.getElementById("dataContainer");
+            console.log(tableContainer);
+
+            skipcols = [1];
+            const tableheader = 'Year, Enrollment Group, Total';
+            tableheaders = tableheader.split(',').map(element => element.trim());
+            console.log(tableheaders);
+
+            
+        }
+
+        function buildDataTable(){
+            const options = {
+                maxRows: 0,
+                ignoreAliases: false,
+                ignoreSelection: true,
+            };
+
+            console.log("viz = ", viz);
+
+            
+
+            console.log("Hello activeSheet = ", activeSheet);
+
+            activeSheet.getSummaryDataAsync(options)
+            .then(dataTable => {
+                console.log("Building dataTable = ");
+                console.log(dataTable);
+                constructTable(dataTable);
+            })
+            .otherwise(function(error) {
+                console.log("error getting table data ", error);
+            });
+
+
+        }
+
+        function constructTable(dataTable){
+            const data = dataTable.getData();
+            console.log(data, data.length);
+
+            const table = document.createElement('table');
+            console.log("This is table headers = ", tableheaders);
+
+            // create table header row
+            const tr = document.createElement("tr");
+            if(tableheaders.length>0){
+                tableheaders.forEach(element => {
+                    const th = document.createElement("th");
+                    th.innerHTML = element;
+                    tr.appendChild(th);
+                    
+                });
+            }else{
+                console.log("No Table header");
+            }
+
+            table.appendChild(tr);
+            // Add data rows
+            const filteredData = data.filter(row => !row.some(cell => cell.value === "null"));
+            filteredData.forEach(function(row) {
+                const tr = document.createElement("tr");
+                const filteredRow = row.filter((cell, j) => !skipcols.includes(j));
+                filteredRow.forEach(function(cell) {
+                    const td = document.createElement("td");
+                    td.innerHTML = cell.formattedValue;
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+            tableContainer.appendChild(table);
+
+        }
+
+
+
+        
+    // Function to initialize and load the Tableau visualization
+    // function initTableauViz() {
+    //   var containerDiv = document.getElementById("tableauViz");
+    //   var url = "https://public.tableau.com/views/HistoricalEnrollment-Sandbox/LineGraph";
+    //   var options = {
+    //     width: "800px",
+    //     height: "600px",
+    //     hideTabs: true,
+    //     hideToolbar: true,
+    //   };
+
+    //   viz = new tableau.Viz(containerDiv, url, options);
+    // }
+
+    // function extractAndDisplayData() {
+    //   var containerDiv = document.getElementById("tableauViz1");
+    //   var dataContainer = document.getElementById("dataContainer");
+    //   var url = "https://public.tableau.com/views/HistoricalEnrollment-Sandbox/LineGraph";
+    //   console.log("Printing ", dataContainer);
+
+    //   console.log("I am here");
+    //   sheet = viz.getWorkbook().getActiveSheet();
+
+    //   console.log("Printing sheet =>", sheet);
+
+    //   var options = {
+    //     hideTabs: true,
+    //     hideToolbar: true,
+    //     onFirstInteractive: function () {
+    //       var viz = this.getWorkbook().getActiveSheet();
+    //       var dataTable = sheet.getSummaryDataAsync().then(function (data) {
+    //         var columns = data.getColumns();
+    //         var rows = data.getData();
+            
+    //         // Create HTML table structure
+    //         var html = "<table>";
+            
+    //         // Add table header
+    //         html += "<thead><tr>";
+    //         for (var i = 0; i < columns.length; i++) {
+    //           html += "<th>" + columns[i].getFieldName() + "</th>";
+    //         }
+    //         html += "</tr></thead>";
+            
+    //         // Add table body with data rows
+    //         html += "<tbody>";
+    //         for (var i = 0; i < rows.length; i++) {
+    //           html += "<tr>";
+    //           var rowData = rows[i];
+    //           for (var j = 0; j < columns.length; j++) {
+    //             html += "<td>" + rowData[j].formattedValue + "</td>";
+    //           }
+    //           html += "</tr>";
+    //         }
+    //         html += "</tbody>";
+            
+    //         // Close table structure
+    //         html += "</table>";
+
+    //         // Set the generated HTML as the content of the data container
+    //         dataContainer.innerHTML = html;
+    //       });
+
+    //       console.log("Options = ", options);
+
+    //     }
+    //   };
+
+    //   var viz = new tableau.Viz(containerDiv, url, options);
+    // }
+
+    // // Call the function to initialize the Tableau visualization
+    initViz();
+
+    // // Call the function to extract data points and display as a table
+    // extractAndDisplayData();
+
+  </script>
+</body>
+</html>

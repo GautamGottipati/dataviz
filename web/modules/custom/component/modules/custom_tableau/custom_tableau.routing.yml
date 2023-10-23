@@ -1,0 +1,15 @@
+custom_tableau.form:
+  path: '/custom_tableau/form'
+  defaults:
+    _controller: '\Drupal\custom_tableau\Controller\CustomTableauController::form'
+    _title: 'Custom Tableau Form'
+  requirements:
+    _permission: 'access content'
+
+custom_tableau.graph:
+  path: '/custom-tableau/graph'
+  defaults:
+    _controller: '\Drupal\custom_tableau\Controller\CustomTableauController::displayGraph'
+    _title: 'Tablea1u Graph'
+  requirements:
+    _permission: 'access content'

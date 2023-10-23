@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * Provides custom Tableau module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+function custom_tableau_theme($existing, $theme, $type, $path){
+  return array(
+    'custom_tableau_graph' => array(
+      'variables' => array(
+
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function custom_tableau_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.custom_tableau':
+      return '<p>' . t('Custom Tableau module allows users to enter an embedded link.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function custom_tableau_menu() {
+  $items['custom_tableau'] = [
+    'title' => 'Custom Tableau',
+    'page callback' => 'custom_tableau_page',
+    'access arguments' => ['access content'],
+  ];
+
+  $items['custom_tableau/form'] = [
+    'title' => 'Custom Tableau Form',
+    'page callback' => 'custom_tableau_form',
+    'access arguments' => ['access content'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Page callback for custom_tableau.
+ */
+function custom_tableau_page() {
+  $output = '<div id="tableau-container"></div>';
+
+  // Replace the embedded_link with the user inputted link.
+  $embedded_link = \Drupal::state()->get('custom_tableau_embedded_link', '');
+
+  $output .= '<script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>';
+  $output .= '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var containerDiv = document.getElementById("tableau-container");
+      var vizURL = "' . $embedded_link . '";
+      var options = {
+        width: "100%",
+        height: "600px",
+        hideTabs: true,
+        hideToolbar: true,
+      };
+      var viz = new tableau.Viz(containerDiv, vizURL, options);
+    });
+  </script>';
+
+  return $output;
+}
+
+/**
+ * Page callback for custom_tableau/form.
+ */
+function custom_tableau_form() {
+  $form['embedded_link'] = [
+    '#type' => 'textfield',
+    '#title' => 'Embedded Link',
+    '#required' => true,
+  ];
+
+  $form['submit'] = [
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  ];
+
+  return \Drupal::formBuilder()->getForm('Drupal\custom_tableau\Form\CustomTableauForm', $form);
+}
+
+/**
+ * Form submission handler for the custom_tableau form.
+ */
+function custom_tableau_form_submit(array &$form, FormStateInterface $form_state) {
+  $embedded_link = $form_state->getValue('embedded_link');
+  \Drupal::state()->set('custom_tableau_embedded_link', $embedded_link);
+
+  drupal_set_message('Embedded link saved successfully.');
+}
+
+

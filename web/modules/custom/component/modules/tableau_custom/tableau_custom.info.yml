@@ -1,0 +1,5 @@
+name: "Tableau Component"
+description: "We are going to be Drupal 8 module heroes at the end"
+type: module
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10

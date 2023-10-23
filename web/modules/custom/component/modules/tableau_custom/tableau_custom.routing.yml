@@ -1,0 +1,7 @@
+tableau_custom.content:
+  path: '/form'
+  defaults:
+    _controller: 'Drupal\tableau_custom\Controller\TableauCustomController::content'
+    _title: 'Tableau'
+  requirements:
+    _permission: 'access content'

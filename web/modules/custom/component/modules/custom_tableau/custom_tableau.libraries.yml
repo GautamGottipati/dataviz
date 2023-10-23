@@ -1,0 +1,9 @@
+# custom_tableau.libraries.yml
+
+custom_tableau_graph:
+  version: 1.x
+  js:
+    js/custom_tableau_script.js: {}
+  dependencies:
+    - core/jquery
+    - core/tableau
